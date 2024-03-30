@@ -1,0 +1,137 @@
+.me {
+    scale: 0.25;
+    position: "0.001 0 0";
+}
+
+#gradient {
+    background-image: linear-gradient(red, yellow);
+}
+
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body
+{
+    overflow: hidden;
+}
+
+html{
+    background: #1e1a20;
+}
+
+.webgl
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+
+
+.section
+{
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 800;
+    color: #ffeded;
+    text-transform: uppercase;
+    font-size: 7vmin;
+    padding-left: 200px;
+    padding-right: 10%;
+}
+
+
+section:nth-child(odd)
+{
+    justify-content: flex-end;
+}
+
+/*
+Right Sections 
+*/
+
+.paragraphR
+{
+    display: column;
+    column-width: 600px;
+    align-items: column;
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    text-transform: initial;
+    padding-right: 145px;
+    padding-top: 250px;
+    /* margin-right: 345px; */
+}
+
+.navbuttonR
+{
+    background-color: #ffeded; /* Button background color */
+    color: black; /* Font color */
+    font-family: Arial, Helvetica, sans-serif; /* Font family */
+    font-weight: 600; /* Font weight */
+    font-size: 16px; /* Font size */
+    border: none; /* Removes the default border */
+    padding: 10px 20px; /* Adds some padding inside the button */
+    cursor: pointer; /* Changes cursor to pointer when hovering over the button */
+    /* display: block; Makes the button a block element to enable centering */
+    margin: auto; /* Centers the button horizontally */
+    text-align: center; /* Ensures the text inside the button is centered */
+    border-radius: 10px;
+    margin-top: 500px;
+    justify-content: center;
+    position: absolute;
+    padding-left: 19px;
+    margin-right: 620px;
+}
+
+/*
+Left sections
+*/
+
+.paragraphL
+{
+    display: column;
+    column-width: 600px;
+    align-items: column;
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    text-transform: initial;
+    
+    padding-top: 250px;
+
+    padding-left: 0px;
+    margin-left: 7px;
+}
+
+
+.navbuttonL
+{
+    background-color: #ffeded; /* Button background color */
+    color: black; /* Font color */
+    font-family: Arial, Helvetica, sans-serif; /* Font family */
+    font-weight: 600; /* Font weight */
+    font-size: 16px; /* Font size */
+    border: none; /* Removes the default border */
+    padding: 10px 20px; /* Adds some padding inside the button */
+    cursor: pointer; /* Changes cursor to pointer when hovering over the button */
+    /* display: block; Makes the button a block element to enable centering */
+    margin: auto; /* Centers the button horizontally */
+    text-align: center; /* Ensures the text inside the button is centered */
+    border-radius: 10px;
+    margin-top: 200px;
+    justify-content: center;
+    position: absolute;
+    /* padding-left: 160px;  */
+    margin-right: 500px;
+}
