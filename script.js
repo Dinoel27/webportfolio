@@ -1,23 +1,17 @@
 import * as THREE from 'three'
 import GUI from 'lil-gui'
 import gsap from 'gsap'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import ScrollSmoother from 'scroll-smooth'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
 
-/**
- * Debug
- */
-const gui = new GUI()
 
 const parameters = {
-    materialColor: '#ffeded'
+    materialColor: '#ff0000'
 }
-
-gui
-    .addColor(parameters, 'materialColor')
-    .onChange(() => {
-        material.color.set(parameters.materialColor)
-        particlesMaterial.color.set(parameters.materialColor)
-    })
 
 /**
  * Base
@@ -27,262 +21,169 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+//change color of scene
+// scene.background = new THREE.Color('#002352');
 
 /**
  * Objects
  */
 
-/**
- * Texture Loader
- */
-const textureLoader = new THREE.TextureLoader()
-const matcapTexture = textureLoader.load('textures/matcaps/1.png')
-const material = new THREE.MeshMatcapMaterial()
-material.matcap = matcapTexture
+// Dracoloader batch loads all models on the website allowing for faster loads during the experience 
+const dracoLoader = new DRACOLoader()
 
-
-const sky1Texture = textureLoader.load('textures/skyboxes/sky.png')
-sky1Texture.colorSpace = THREE.SRGBColorSpace
-const sky2Texture = textureLoader.load('textures/skyboxes/sky2.png')
-sky2Texture.colorSpace = THREE.SRGBColorSpace
-const sky3Texture = textureLoader.load('textures/skyboxes/sky3.png')
-sky3Texture.colorSpace = THREE.SRGBColorSpace
-const sky4Texture = textureLoader.load('textures/skyboxes/sky4.png')
-sky4Texture.colorSpace = THREE.SRGBColorSpace
-const sky5Texture = textureLoader.load('textures/skyboxes/sky5.png')
-sky5Texture.colorSpace = THREE.SRGBColorSpace
-
-sky1Texture.minFilter = THREE.LinearFilter
-sky1Texture.magFilter = THREE.NearestFilter
-
-sky2Texture.minFilter = THREE.LinearFilter
-sky2Texture.magFilter = THREE.NearestFilter
-
-sky3Texture.minFilter = THREE.LinearFilter
-sky3Texture.magFilter = THREE.NearestFilter
-
-sky4Texture.minFilter = THREE.LinearFilter
-sky4Texture.magFilter = THREE.NearestFilter
-
-sky5Texture.minFilter = THREE.LinearFilter
-sky5Texture.magFilter = THREE.NearestFilter
-
-
+const gltfloader = new GLTFLoader()
+dracoLoader.setDecoderPath('./static/draco')
+gltfloader.setDRACOLoader(dracoLoader)
 
 /**
- * Mesh Objects
+ * Sections 
  */
+
+let mixer = null
+
+gltfloader.load(
+    './static/models/me_anim.glb',
+    (gltf) => {
+        //gltf.scene.scale.set(1.5, 1.5, 3.5)
+        gltf.scene.position.set(0, -0.95, -0.5)
+        // gltf.scene.position.set(0, -0.5, 2)
+        scene.add(gltf.scene)
+
+        /**
+        * ANIMATION LOADER 
+        */
+
+        mixer = new THREE.AnimationMixer(gltf.scene)
+        const action = mixer.clipAction(gltf.animations[0])
+        action.play()
+    }
+)
+
+
+//Section 1
+
+//GOLDEN GATE BRIDGE
+gltfloader.load(
+    './static/models/Golden_Gate.glb',
+    (gltf) => {
+        gltf.scene.position.set(2.2, -0.9, -5)
+        gltf.scene.rotation.set(0, -0.95, 0)
+        gltf.scene.scale.set(1.1, 1.1, 1.1)
+        scene.add(gltf.scene)
+    }
+)
+
+
+//Section 2 - SYNESTHESIA STUDIO
+gltfloader.load(
+    './static/models/Synesthesia_Studio.glb',
+    (gltf) => {
+        gltf.scene.position.set(0.5, -2.5, -41)
+        gltf.scene.scale.set(5, 5, 5)
+        gltf.scene.rotation.set(0, 0, 0)
+        scene.add(gltf.scene)
+    }
+)
+
+//Section 3 - 5CEO STRUCTURE
+gltfloader.load(
+    './static/models/5ceo.glb',
+    (gltf) => {
+        gltf.scene.position.set(-0.3, -0.5, -100)
+        scene.add(gltf.scene)
+    }
+)
+
+//Section 4 - DAFFODILS ISLAND 
+gltfloader.load(
+    './static/models/daffodils_island.glb',
+    (gltf) => {
+        gltf.scene.position.set(-0.1, -0.5, -133)
+        gltf.scene.rotation.set(0, -1.65, 0)
+        scene.add(gltf.scene)
+    }
+)
+
+//Section 5 - PHONE
+gltfloader.load(
+    './static/models/phone.glb',
+    (gltf) => {
+        gltf.scene.position.set(0.5, -1.1, -173)
+        gltf.scene.rotation.set(-1.2, 0, 0)
+        gltf.scene.scale.set(0.2, 0.2, 0.2)
+        scene.add(gltf.scene)
+    }
+)
+
+
+//Section 6 - APPLE STORE MICHIGAN CHICAGO 
+gltfloader.load(
+    './static/models/Apple_Store.glb',
+    (gltf) => {
+        gltf.scene.position.set(4.25, -1.25, -215)
+        gltf.scene.rotation.set(0, -1.6, 0)
+        gltf.scene.scale.set(25, 25, 25)
+        scene.add(gltf.scene)
+    }
+)
+
+
+const loader = new THREE.TextureLoader()
+const bgTexture = loader.load('./static/images/bg1.png')
+bgTexture.colorSpace = THREE.SRGBColorSpace
+scene.background = bgTexture
+
+function render(time) {
+ 
+   const canvasAspect = canvas.clientWidth / canvas.clientHeight;
+   const imageAspect = bgTexture.image ? bgTexture.image.width / bgTexture.image.height : 1;
+   const aspect = imageAspect / canvasAspect;
+  
+   bgTexture.offset.x = aspect > 1 ? (1 - 1 / aspect) / 2 : 0;
+   bgTexture.repeat.x = aspect > 1 ? 1 / aspect : 1;
+
+   bgTexture.offset.y = aspect > 1 ? 0 : (1 - aspect) / 2;
+   bgTexture.repeat.y = aspect > 1 ? 1 : aspect;
+ }
 
 const objectDistance = 4
+const sectionMeshes = []
 
-const mesh1 = new THREE.Mesh(
-    new THREE.TorusGeometry(1, 0.4, 16, 60),
-    material
-)
-
-const mesh2 = new THREE.Mesh(
-    new THREE.ConeGeometry(1, 2, 32),
-    material
-)
-
-const mesh3 = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
-    material
-)
-
-
-const mesh4 = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 2, 2),
-    material
-)
-
-const mesh5 = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 16, 16),
-    material
-)
-
-/**
- * Setting position of the objects 
- */
-
-mesh1.position.set(-0.5, 0, 3)
-mesh1.scale.set(0.3, 0.3, 0.3)
-
-
-mesh2.position.set(0.5, 0, -42)
-mesh2.scale.set(0.1, 0.1, 0.1)
-
-mesh3.position.set(-0.5, 0, -93)
-mesh3.scale.set(0.1, 0.1, 0.1)
-
-mesh4.position.set(2, 0, -133)
-mesh4.scale.set(0.3, 0.3, 0.3)
-
-mesh5.position.set(-2, 0, -195)
-mesh5.scale.set(0.3, 0.3, 0.3)
-
-
-
-
-/**
- * Skyboxes 
- */
-
-const geometry = new THREE.SphereGeometry(5, 32, 32)
-const skymaterial = new THREE.MeshBasicMaterial(
-    {
-        map: sky1Texture
-    }
-)
-
-skymaterial.side = THREE.DoubleSide
-
-const skymaterial2 = new THREE.MeshBasicMaterial(
-    {
-        map: sky2Texture
-    }
-)
-
-skymaterial2.side = THREE.DoubleSide
-
-
-const skymaterial3 = new THREE.MeshBasicMaterial(
-    {
-        map: sky3Texture
-    }
-)
-
-skymaterial3.side = THREE.DoubleSide
-
-const skymaterial4 = new THREE.MeshBasicMaterial(
-    {
-        map: sky4Texture
-    }
-)
-
-skymaterial4.side = THREE.DoubleSide
-
-const skymaterial5 = new THREE.MeshBasicMaterial(
-    {
-        map: sky5Texture
-    }
-)
-
-skymaterial5.side = THREE.DoubleSide
-
-const sphere = new THREE.Mesh(geometry, skymaterial)
-sphere.position.set(0, -0, 1.5)
-
-const sphere2 = new THREE.Mesh(geometry, skymaterial2)
-sphere2.position.set(0, 0, -40)
-
-const sphere3 = new THREE.Mesh(geometry, skymaterial3)
-sphere3.position.set(0, 0, -90)
-
-const sphere4 = new THREE.Mesh(geometry, skymaterial4)
-sphere4.position.set(0, 0, -130)
-
-const sphere5 = new THREE.Mesh(geometry, skymaterial4)
-sphere5.position.set(0, 0, -190)
-
-// scene.add(sphere)
-
-
-
-/**
- * Scene add for scroll 
- */
-scene.add(mesh1, mesh2, mesh3, mesh4, mesh5, sphere, sphere2, sphere3, sphere4, sphere5)
-const sectionMeshes = [mesh1, mesh2, mesh3, mesh4, mesh5, sphere, sphere2, sphere3, sphere4, sphere5]
-
-/**
- * Patricles
- */
-// Geometry 
-// const particlesCount = 200
-// const positions = new Float32Array(particlesCount * 3)
-
-
-// Warp Effect 
-let LINE_COUNT = 5000
-let geom = new THREE.BufferGeometry()
-
-geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array(6 * LINE_COUNT), 3))
-geom.setAttribute("velocity", new THREE.BufferAttribute(new Float32Array(2 * LINE_COUNT), 1))
-
-let pos = geom.getAttribute("position")
-let pa = pos.array
-let vel = geom.getAttribute("velocity")
-let va = vel.array
-
-/**
- * Warp Effect
- */
-
-function warpEffect() {
-    // document.body.appendChild(renderer.domElement)
-
-    for (let line_index = 0; line_index < LINE_COUNT; line_index++) {
-        var x = Math.random() * 400 - 200
-        var y = Math.random() * 200 - 100
-        var z = Math.random() * 500 - 100
-
-        var x2 = x
-        var y2 = y
-        var z2 = z
-
-        //line start 
-        pa[6 * line_index] = x
-        pa[6 * line_index + 1] = y
-        pa[6 * line_index + 2] = z
-
-        //line end 
-        pa[6 * line_index + 3] = x2
-        pa[6 * line_index + 4] = y2
-        pa[6 * line_index + 5] = z2
-
-        va[2 * line_index] = va[2 * line_index + 1] = 0
-    }
-
-    let mat = new THREE.LineBasicMaterial({ color: 0xffffff })
-    let lines = new THREE.LineSegments(geom, mat)
-    lines.position.set(0, 0, -200)
-    scene.add(lines)
-
-    animate()
-}
-
-// Animation of warp effect particles 
-
-function animate() {
-    for (let line_index = 0; line_index < LINE_COUNT; line_index++) {
-        va[2 * line_index] += 0.03
-        va[2 * line_index + 1] += 0.025
-
-        pa[6 * line_index + 2] += va[2 * line_index] // z-axis
-        pa[6 * line_index + 5] += va[2 * line_index + 1] // z-axis
-
-        if (pa[6 * line_index + 5] > 200) {
-            var z = Math.random() * 200 - 100
-
-            pa[6 * line_index + 2] = z
-            pa[6 * line_index + 5] = z
-
-            va[2 * line_index] = 0
-            va[2 * line_index + 1] = 0
-
-        }
-    }
-
-    pos.needsUpdate = true
-    // renderer.render(scene, camera)
-    requestAnimationFrame(animate)
-}
 
 
 // Ambient Light 
 const ambientLight = new THREE.AmbientLight(0xffffff, 3)
 scene.add(ambientLight)
+
+const pointLight = new THREE.PointLight(0xffffff, 60, 100)
+
+
+const pointLight2 = new THREE.PointLight(0xffffff, 60, 100)
+
+const pointLight3 = new THREE.PointLight(0xffffff, 60, 150)
+
+const pointLight4 = new THREE.PointLight('#FFC800', 2, 5)
+
+const pointLight5 = new THREE.PointLight('#FFC800', 2, 5)
+
+//golsing style light
+// const pointLight6 = new THREE.PointLight('#ff77ff', 10, 20)
+// const pointLight7 = new THREE.PointLight('#0000cd', 10, 20)
+
+const pointLight6 = new THREE.PointLight('#FFC800', 10, 20)
+const pointLight7 = new THREE.PointLight('white', 30, 20)
+
+
+scene.add(pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7)
+
+pointLight.position.set(0, 3, -224)
+pointLight2.position.set(0, 3, -233)
+pointLight3.position.set(0, 1, -173)
+pointLight4.position.set(1.25, -0.45, -214)
+pointLight5.position.set(3.25, -0.45, -214)
+
+pointLight6.position.set(4, 0.9, -5)
+pointLight7.position.set(-3.5, 0.9, -3.5)
 
 /**
  * Sizes
@@ -315,13 +216,6 @@ const cameraGroup = new THREE.Group()
 scene.add(cameraGroup)
 
 
-
-// Base camera
-const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.001, 100)
-camera.position.z = 5
-camera.position.y = 4
-cameraGroup.add(camera)
-
 /**
  * Renderer
  */
@@ -332,6 +226,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
 /**
  * Scroll Camera 
@@ -340,105 +235,169 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 let scrollY = window.scrollY
 let currentSection = 0
 
-/**
- * 3D Scroll function for testing 
- */
-
 // loading sections
 const sections =
     [
-        { zCenter: 5, content: 'section1' }, // At Z = 0
+        { zCenter: 1, content: 'section1' }, // At Z = 1
         { zCenter: -40, content: 'section2' }, // At Z = -40
         { zCenter: -90, content: 'section3' }, // At Z = -90
         { zCenter: -130, content: 'section4' }, // At Z = -130
-        { zCenter: -190, content: 'section5' }, // At Z = -190
+        { zCenter: -170, content: 'section5' }, // At Z = -170
+        { zCenter: -215, content: 'section6' }, // At Z = -215
     ]
 
 let currentSectionIndex = 0
 let isTransitioning = false
 
+
+// Base camera
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.001, 30)
+// camera.position.z = sections[0].zCenter
+camera.position.z = sections[0].zCenter
+camera.position.y = 4
+cameraGroup.add(camera)
+
 // Debounce 
 let debounceTimer
-const debounceDelay = 30
+const debounceDelay = 0.1
 
-window.addEventListener('wheel', (event) => {
+/**
+ * NEW SCROLL 
+ */
 
-    clearTimeout(debounceTimer)
-    
+/**
+ * Support for IOS 
+ */
 
-    // checking if the user is at the end of experience
+let touchStartY = 0;
+let touchEndY = 0;
+const touchSensitivity = 0.9; // Adjust sensitivity as needed
+
+// Event listener for touchstart
+window.addEventListener('touchstart', function (e) {
+    touchStartY = e.touches[0].clientY;
+}, false);
+
+// Event listener for touchmove
+window.addEventListener('touchmove', function (e) {
+    touchEndY = e.touches[0].clientY;
+   
+}, false);
+
+// Event listener for touchend
+window.addEventListener('touchend', function (e) {
+    // Determine swipe direction
+    const direction = touchStartY - touchEndY > 0 ? 1 : -1;
+
+    // Apply the debounce mechanism to the touch scroll as well
+    clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
+        handleScroll(direction);
+    }, debounceDelay);
+}, false);
 
-        if (isTransitioning) return
-        warpEffect()
+//Function to handle scrolling based on direction
 
-        const direction = Math.sign(event.deltaY)
+// working scroll but stuttering and slow 
+function handleScroll(direction) {
+    if (isTransitioning) return;
 
-        if (currentSectionIndex == sections.length - 1 && direction > 0) {
-            isTransitioning = true
-            updateText(currentSectionIndex)
-            warpEffect()
-            moveToStart()
-            return
-        }
+    const jumpFurther = 10;
+    const moveAmount = direction * touchSensitivity * jumpFurther;
+    const targetZ = camera.position.z - moveAmount;
 
-        // moving through different sections 
-        let nextSectionIndex = currentSectionIndex + direction
-        nextSectionIndex = Math.max(0, Math.min(nextSectionIndex, sections.length - 1))
-
-        if (nextSectionIndex !== currentSectionIndex) {
-            isTransitioning = true
-            currentSectionIndex = nextSectionIndex
-            warpEffect()
-            moveToSection(sections[currentSectionIndex])
-        }
-    }, debounceDelay)
-
-})
-
-// function to move to the initial project 
-function moveToStart() {
-    currentSectionIndex = 0
-    moveToSection(sections[0])
-}
-
-// function to move through different sections 
-function moveToSection(section) {
+    // Animate camera to the target position
     gsap.to(camera.position, {
-        z: section.zCenter,
-        duration: 2,
-        ease: "power2.out",
-
+        z: targetZ,
+        duration: 0.1, // Adjust duration as needed
+        ease: "power4.out",
         onUpdate: function () {
-            
-            renderer.render(scene, camera)
-        },
-
-        onStart: function () {
-            // console.log(`Starting movement to ${section.content}`);
+            // renderer.render(scene, camera);
+            updateText(getCurrentSectionIndex(camera.position.z));
         },
         onComplete: function () {
-            warpEffect()
-            console.log(`Arrived at ${section.content}`);
-            isTransitioning = false
-            updateText(currentSectionIndex)
+            isTransitioning = false;
         }
     })
+
+    // gsap.to(camera.position, {
+    //     z: targetZ,
+    //     duration: 0.1, // Adjust duration as needed
+    //     ease: "power4.out",
+    //     onUpdate: function () {
+    //         renderer.render(scene, camera);
+    //         updateText(getCurrentSectionIndex(camera.position.z));
+
+    //         //Polygon and scene complexity display 
+    //         // console.log("Scene polycount:", renderer.info.render.triangles)
+    //         // console.log("Active Drawcalls:", renderer.info.render.calls)
+    //         // console.log("Textures in Memory", renderer.info.memory.textures)
+    //         // console.log("Geometries in Memory", renderer.info.memory.geometries)
+    //     },
+    //     onComplete: function () {
+
+    //         // Check if the camera reaches the end or beginning, then loop
+    //         if (camera.position.z > sections[0].zCenter) {
+    //             camera.position.z = sections[sections.length - 1].zCenter;
+    //             updateText(sections.length - 1);
+
+    //         } else if (camera.position.z < sections[sections.length - 1].zCenter) {
+    //             camera.position.z = sections[0].zCenter;
+
+    //             updateText(0);
+    //         }
+
+    //         isTransitioning = false;
+    //     }
+    // })
+
 }
 
-// updating text on each change of section
-function updateText(currentSectionIndex) {
+// Inertia test 
+// Function to handle scrolling based on direction
+// function handleScroll(direction) {
+//     if (isTransitioning) return;
 
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.display = 'none'
-    })
+//     // const jumpFurther = 10;
+//     const moveAmount = direction * touchSensitivity;
+//     let targetZ = camera.position.z - moveAmount;
 
-    const sectionElement = document.querySelector(`#section${currentSectionIndex + 1}`)
+//     // Add inertia effect
+//     const inertiaFactor = 0.9; // Adjust inertia factor as needed
+//     const inertiaThreshold = 0.1; // Threshold to stop inertia
+//     let inertiaSpeed = moveAmount * inertiaFactor;
 
-    if (sectionElement) {
-        sectionElement.style.display = 'flex'
-    }
-}
+//     // Animate camera to the target position
+//     function animateScroll() {
+//         targetZ -= inertiaSpeed;
+//         inertiaSpeed *= inertiaFactor;
+
+//         // Stop animation if inertia speed is below threshold
+//         if (Math.abs(inertiaSpeed) < inertiaThreshold) {
+//             cancelAnimationFrame(animationFrame);
+//             isTransitioning = false;
+//             return;
+//         }
+
+//         gsap.to(camera.position, {
+//             z: targetZ,
+//             duration: 0.1, // Adjust duration as needed
+//             ease: "power4.out",
+//             onUpdate: function () {
+//                 // renderer.render(scene, camera);
+//                 updateText(getCurrentSectionIndex(camera.position.z));
+//             },
+//             onComplete: function () {
+//                 // Continue animation until inertia stops
+//                 animationFrame = requestAnimationFrame(animateScroll);
+//             }
+//         });
+//     }
+
+//     // Start the animation
+//     animateScroll();
+// }
+
 
 
 /**
@@ -458,6 +417,116 @@ window.addEventListener('mousemove', (event) => {
 
 })
 
+// Event listener for smooth scroll using gsap
+window.addEventListener('wheel', (event) => {
+    if (isTransitioning) return;
+
+
+    // const jumpFurther = 2;
+    const moveAmount = (event.deltaY * 0.02); // Adjust sensitivity as needed
+    const targetZ = camera.position.z - moveAmount;
+
+    // Animate camera to the target position
+    gsap.to(camera.position, {
+        z: targetZ,
+        duration: 0.1, // Adjust duration as needed
+        ease: "circ.out",
+        onUpdate: function () {
+            renderer.render(scene, camera);
+            updateText(getCurrentSectionIndex(camera.position.z));
+
+            //Polygon and scene complexity display 
+            // console.log("Scene polycount:", renderer.info.render.triangles)
+            // console.log("Active Drawcalls:", renderer.info.render.calls)
+            // console.log("Textures in Memory", renderer.info.memory.textures)
+            // console.log("Geometries in Memory", renderer.info.memory.geometries)
+        },
+        onComplete: function () {
+
+            // Check if the camera reaches the end or beginning, then loop
+            if (camera.position.z > sections[0].zCenter) {
+                camera.position.z = sections[sections.length - 1].zCenter;
+                updateText(sections.length - 1);
+
+            } else if (camera.position.z < sections[sections.length - 1].zCenter) {
+                camera.position.z = sections[0].zCenter;
+
+                updateText(0);
+            }
+
+            isTransitioning = false;
+        }
+    })
+})
+
+
+
+
+// Smooth scroll to section logic
+document.querySelectorAll('.navbar a').forEach(link => {
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const targetId = event.target.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        const targetZ = parseFloat(targetSection.dataset.z); // Assuming you set the zCenter of each section as a data attribute
+        const targetPosition = new THREE.Vector3(0, 0, targetZ);
+        // gsap.to(camera.position, { duration: 1, ease: 'circ.out', ...targetPosition });
+
+        //Test Test Test 
+        gsap.to(camera.position, {
+            z: targetZ,
+            duration: 1, // Adjust duration as needed
+            ease: "circ.out",
+            onUpdate: function () {
+                renderer.render(scene, camera);
+                updateText(getCurrentSectionIndex(camera.position.z));
+
+
+                //Polygon and scene complexity display 
+                // console.log("Scene polycount:", renderer.info.render.triangles)
+                // console.log("Active Drawcalls:", renderer.info.render.calls)
+                // console.log("Textures in Memory", renderer.info.memory.textures)
+                // console.log("Geometries in Memory", renderer.info.memory.geometries)
+            },
+            onComplete: function () {
+                isTransitioning = false;
+
+            }
+        })
+
+        // Update the displayed text content based on the clicked section
+        updateText(parseInt(targetId.replace('section', '')) - 1);
+    });
+});
+
+// Function to determine the current section index based on camera position
+function getCurrentSectionIndex(zPosition) {
+    for (let i = 0; i < sections.length; i++) {
+        if (zPosition > sections[i].zCenter) {
+            return i;
+        }
+    }
+    return sections.length - 1;
+}
+
+//showing stats 
+
+// // Function to update the displayed text based on the current section index
+function updateText(currentSectionIndex) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+    });
+
+    // Show the section corresponding to the current index
+    const sectionElement = document.querySelector(`#section${currentSectionIndex + 1}`);
+    if (sectionElement) {
+        sectionElement.style.display = 'flex';
+        console.log('camera is at#', camera.position)
+    }
+}
+
+
 
 /**
  * Animate
@@ -472,10 +541,13 @@ const tick = () => {
 
     // console.log(scrollY)
 
+
     // Animate Camera 
     camera.position.y = - scrollY / sizes.height * objectDistance
 
-
+    if (mixer) {
+        mixer.update(deltaTime)
+    }
 
     const parallaxX = cursor.x * 0.5
     const parallaxY = - cursor.y * 0.5
@@ -496,3 +568,4 @@ const tick = () => {
 }
 
 tick()
+
